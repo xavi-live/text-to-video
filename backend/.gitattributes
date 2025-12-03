@@ -1,0 +1,7 @@
+/mvnw text eol=lf
+*.cmd text eol=crlf
+mvnw text eol=lf
+*.jar binary
+*.war binary
+*.class binary
+
