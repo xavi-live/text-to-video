@@ -35,6 +35,8 @@ build/
 .vscode/
 
 /src/main/resources/application-secret.properties
+/videos/**
+/temporary-audio-files/**
 
 # Linux / macOS
 *.swp
