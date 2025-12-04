@@ -52,7 +52,6 @@ public class WebSecurityConfig  {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/videos/**").authenticated()
                         .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());

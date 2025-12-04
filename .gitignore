@@ -1,0 +1,67 @@
+# ---------------------------
+# IDEs / Editors
+# ---------------------------
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# ---------------------------
+# OS generated files
+# ---------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------
+# Logs
+# ---------------------------
+*.log
+logs/
+*.tmp
+
+# ---------------------------
+# Node / Java / Build artifacts
+# ---------------------------
+node_modules/
+dist/
+build/
+target/
+out/
+*.class
+*.jar
+*.war
+*.iml
+
+# ---------------------------
+# Temporary / backup files
+# ---------------------------
+*.swp
+*.bak
+*.tmp
+*.old
+
+# ---------------------------
+# Environment / secret files
+# ---------------------------
+.env
+*.key
+*.pem
+credentials.json
+
+# ---------------------------
+# Media / large files (optional)
+# ---------------------------
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.wav
+
+# ---------------------------
+# Misc
+# ---------------------------
+*.DS_Store
+*.log
+*.cache

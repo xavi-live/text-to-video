@@ -8,6 +8,7 @@ import live.xavi.text_to_video.services.UserService;
 import live.xavi.text_to_video.services.VideoService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class VideoController {
 
 
     @PostMapping("/generate")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> generateVideo (@RequestBody VideoGenerateRequest videoGenerateRequest, Principal principal) throws IOException {
 
         User user = userService.findByUsername(principal.getName());
