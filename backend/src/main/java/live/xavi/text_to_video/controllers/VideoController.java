@@ -2,6 +2,7 @@ package live.xavi.text_to_video.controllers;
 
 import live.xavi.text_to_video.dtos.ChunksApiResponseDto;
 import live.xavi.text_to_video.dtos.VideoGenerateRequest;
+import live.xavi.text_to_video.dtos.VideoResponseDto;
 import live.xavi.text_to_video.models.User;
 import live.xavi.text_to_video.models.Video;
 import live.xavi.text_to_video.services.UserService;
@@ -27,9 +28,9 @@ public class VideoController {
 
     @PostMapping("/generate")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> generateVideo (@RequestBody VideoGenerateRequest videoGenerateRequest, Principal principal) throws IOException {
+    public ResponseEntity<VideoResponseDto> generateVideo (@RequestBody VideoGenerateRequest videoGenerateRequest, Principal principal) throws IOException {
 
         User user = userService.findByUsername(principal.getName());
-        return ResponseEntity.ok(videoService.createVideo(videoGenerateRequest.getInstructions(), user).getFileUrl());
+        return ResponseEntity.ok(videoService.convertToVideoResponseDto(videoService.createVideo(videoGenerateRequest.getInstructions(), user)));
     }
 }

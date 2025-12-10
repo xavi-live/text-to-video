@@ -5,7 +5,7 @@ import live.xavi.text_to_video.dtos.UserProfileResponseDto;
 import live.xavi.text_to_video.dtos.VideoResponseDto;
 import live.xavi.text_to_video.models.User;
 import live.xavi.text_to_video.repositories.UserRepository;
-import live.xavi.text_to_video.security.jwt.JwtAuthenticationResponse;
+import live.xavi.text_to_video.dtos.JwtAuthenticationResponse;
 import live.xavi.text_to_video.security.jwt.JwtUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,7 +43,7 @@ public class UserService {
 
         String jwt = jwtUtils.generateToken(userDetails);
 
-        return new JwtAuthenticationResponse(jwt);
+        return new JwtAuthenticationResponse(jwt, userDetails.getUsername());
 
     }
 

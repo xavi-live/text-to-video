@@ -32,6 +32,8 @@ public class JwtUtils {
     }
 
     public String generateToken (UserDetailsImpl userDetails) {
+        long refreshTokenExpirationMs = 6 * 60 * 60 * 1000;
+
         String username = userDetails.getUsername();
         String roles = userDetails.getAuthorities()
                 .stream()
@@ -42,10 +44,25 @@ public class JwtUtils {
                 .subject(username)
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(new Date().getTime() + 172800000))
+                .expiration(new Date(new Date().getTime() + refreshTokenExpirationMs))
                 .signWith(key())
                 .compact();
     }
+
+    public String generateRefreshToken(String username) {
+        // 7 days in milliseconds
+        long refreshTokenExpirationMs = 7 * 24 * 60 * 60 * 1000;
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + refreshTokenExpirationMs))
+                .signWith(key())
+                .compact();
+    }
+
+
+
 
     public String getUsernameFromJwtToken (String token) {
         return Jwts.parser()

@@ -1,6 +1,7 @@
 package live.xavi.text_to_video.services;
 
 import live.xavi.text_to_video.dtos.ChunksApiResponseDto;
+import live.xavi.text_to_video.dtos.VideoResponseDto;
 import live.xavi.text_to_video.models.User;
 import live.xavi.text_to_video.models.Video;
 import live.xavi.text_to_video.repositories.VideoRepository;
@@ -196,5 +197,19 @@ private double getVideoDuration(String videoPath) throws IOException, Interrupte
     }
 
     return 0;
+}
+
+public VideoResponseDto convertToVideoResponseDto (Video video) {
+    VideoResponseDto videoResponse = new VideoResponseDto();
+    videoResponse.setId(video.getId());
+    videoResponse.setCreatedDate(video.getCreatedDate());
+    videoResponse.setDuration(video.getDuration());
+    videoResponse.setFileUrl(video.getFileUrl());
+    videoResponse.setInstructions(video.getInstructions());
+    videoResponse.setSizeInBytes(video.getSizeInBytes());
+    videoResponse.setTitle(video.getTitle());
+    videoResponse.setViews(video.getViews());
+
+    return videoResponse;
 }
 }
