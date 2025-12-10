@@ -15,6 +15,7 @@ public class Video {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    @Column(length = 2048)
     private String fileUrl;
     private Duration duration;
     private Long sizeInBytes;

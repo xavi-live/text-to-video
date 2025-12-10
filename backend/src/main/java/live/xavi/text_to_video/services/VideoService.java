@@ -28,6 +28,7 @@ public class VideoService {
     private final VideoChunksAndDescriptionApi videoChunksAndDescriptionApi;
     private final VideosApi videosApi;
     private final TtsApi ttsApi;
+    private final MinioUploadService minioUploadService;
 
     public Video createVideo(String videoInstruction, User user) throws IOException {
 
@@ -62,7 +63,9 @@ public class VideoService {
         try {
             // create final video and get path
             String finalVideoPath = editChunksIntoVideoAndGetPath(videoDataChunks);
-            video.setFileUrl(finalVideoPath);
+            String presignedUrl = minioUploadService.upload(finalVideoPath);
+            System.out.println(presignedUrl);
+            video.setFileUrl(presignedUrl);
 
             // set duration
             double durationSeconds = getVideoDuration(finalVideoPath);
@@ -74,6 +77,8 @@ public class VideoService {
 
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Failed to create video", e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         videoRepository.save(video);
