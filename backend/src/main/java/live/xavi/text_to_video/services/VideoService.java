@@ -41,24 +41,6 @@ public class VideoService {
         Files.createDirectories(tempAudioDir);
 
         List<Path> tempAudioFiles = new ArrayList<>();
-
-        for (ChunksApiResponseDto chunk : videoDataChunks) {
-
-            // fetch video url
-            chunk.setMediaUrl(
-                    videosApi.getFirstVideo(chunk.getMediaDescription()).getMediaUrl()
-            );
-
-            // generate speech audio
-            byte[] audioBytes = ttsApi.getAudio(chunk.getStoryText());
-
-            // create unique audio file per chunk
-            Path outputPath = tempAudioDir.resolve("output_" + chunk.getId() + ".mp3");
-            Files.write(outputPath, audioBytes);
-            chunk.setAudioUrl(outputPath.toString());
-            tempAudioFiles.add(outputPath);
-        }
-
         Video video = new Video();
         video.setCreatedDate(LocalDateTime.now());
         video.setInstructions(videoInstruction);
@@ -67,6 +49,22 @@ public class VideoService {
         File finalVideoFile = null;
 
         try {
+            // Generate audio files for each chunk
+            for (ChunksApiResponseDto chunk : videoDataChunks) {
+
+                // fetch video url
+                chunk.setMediaUrl(videosApi.getFirstVideo(chunk.getMediaDescription()).getMediaUrl());
+
+                // generate speech audio
+                byte[] audioBytes = ttsApi.getAudio(chunk.getStoryText());
+
+                // create unique audio file per chunk
+                Path outputPath = tempAudioDir.resolve("output_" + chunk.getId() + ".mp3");
+                Files.write(outputPath, audioBytes);
+                chunk.setAudioUrl(outputPath.toString());
+                tempAudioFiles.add(outputPath);
+            }
+
             // create final video and get path
             String finalVideoPath = editChunksIntoVideoAndGetPath(videoDataChunks);
             finalVideoFile = new File(finalVideoPath);
@@ -87,15 +85,16 @@ public class VideoService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            // Clean up temporary audio files
+            // Delete temporary audio files
             for (Path audioFile : tempAudioFiles) {
                 try { Files.deleteIfExists(audioFile); } catch (IOException ignored) {}
             }
             try { Files.deleteIfExists(tempAudioDir); } catch (IOException ignored) {}
 
-            // Clean up final video file
+            // Delete final video and its temp folder recursively
             if (finalVideoFile != null && finalVideoFile.exists()) {
-                finalVideoFile.delete();
+                File tempDir = finalVideoFile.getParentFile();
+                deleteDirectoryRecursively(tempDir);
             }
         }
 
@@ -150,10 +149,9 @@ public class VideoService {
             return tempFinalVideo.getAbsolutePath();
 
         } finally {
-            // Cleanup temp files and folder
+            // ONLY delete intermediate files; leave final video for createVideo to handle
             for (File tempFile : tempFiles) if (tempFile.exists()) tempFile.delete();
             if (listFile.exists()) listFile.delete();
-            tempDir.delete();
         }
     }
 
@@ -187,6 +185,22 @@ public class VideoService {
         if (exitCode != 0) throw new RuntimeException("FFprobe command failed with exit code " + exitCode);
 
         return 0;
+    }
+
+    private void deleteDirectoryRecursively(File dir) {
+        if (dir == null || !dir.exists()) return;
+
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectoryRecursively(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+        dir.delete();
     }
 
     public VideoResponseDto convertToVideoResponseDto(Video video) {

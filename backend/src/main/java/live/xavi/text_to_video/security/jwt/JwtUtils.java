@@ -20,8 +20,6 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}")
-    private String jwtExpirationMs;
 
     public String getJwtFromHeader (HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -32,7 +30,7 @@ public class JwtUtils {
     }
 
     public String generateToken (UserDetailsImpl userDetails) {
-        long refreshTokenExpirationMs = 6 * 60 * 60 * 1000;
+        long actionTokenExpirationMs = 6 * 60 * 60 * 1000;
 
         String username = userDetails.getUsername();
         String roles = userDetails.getAuthorities()
@@ -44,7 +42,7 @@ public class JwtUtils {
                 .subject(username)
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(new Date().getTime() + refreshTokenExpirationMs))
+                .expiration(new Date(new Date().getTime() + actionTokenExpirationMs))
                 .signWith(key())
                 .compact();
     }
