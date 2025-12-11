@@ -18,6 +18,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -97,6 +98,10 @@ public class VideoService {
                 deleteDirectoryRecursively(tempDir);
             }
         }
+
+        String truncated = videoInstruction.length() > 10 ? videoInstruction.substring(0, 10) : videoInstruction;
+
+        video.setTitle(truncated);
 
         videoRepository.save(video);
         return video;
@@ -214,5 +219,13 @@ public class VideoService {
         videoResponse.setTitle(video.getTitle());
         videoResponse.setViews(video.getViews());
         return videoResponse;
+    }
+    
+    public Optional<Video> findById (Long id) {
+        return videoRepository.findById(id);
+    }
+
+    public void save(Video video) {
+        videoRepository.save(video);
     }
 }
