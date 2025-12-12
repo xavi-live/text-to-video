@@ -27,21 +27,17 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest,
                                        HttpServletResponse response) {
 
-        // Authenticate user and get access token + username
         JwtAuthenticationResponse authResponse = userService.authenticateUser(loginRequest);
 
-        // Generate refresh token
         String refreshToken = jwtUtils.generateRefreshToken(authResponse.getUsername());
 
-        // Set refresh token in HttpOnly cookie
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true);          // HTTPS only
+        refreshCookie.setSecure(true);
         refreshCookie.setPath("/api/auth/refresh");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60);
         response.addCookie(refreshCookie);
 
-        // Return access token + username
         return ResponseEntity.ok(authResponse);
     }
 
@@ -57,7 +53,6 @@ public class AuthController {
 
         String username = jwtUtils.getUsernameFromJwtToken(refreshToken);
 
-        // Use build() to get UserDetailsImpl
         User user = userService.findByUsername(username);
         UserDetailsImpl userDetails = UserDetailsImpl.build(user);
 

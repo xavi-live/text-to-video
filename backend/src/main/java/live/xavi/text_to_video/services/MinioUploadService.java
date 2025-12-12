@@ -25,10 +25,8 @@ public class MinioUploadService {
     }
 
     public String upload(String filePath) throws Exception {
-        // Generate a unique object name
         String objectName = "video_" + UUID.randomUUID() + ".mp4";
 
-        // Upload the file
         try (InputStream is = new FileInputStream(filePath)) {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -40,7 +38,6 @@ public class MinioUploadService {
             );
         }
 
-        // Generate a presigned URL valid for 24 hours
         String presignedUrl = minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .method(Method.GET)
@@ -50,6 +47,6 @@ public class MinioUploadService {
                         .build()
         );
 
-        return presignedUrl; // Return this to the frontend
+        return presignedUrl;
     }
 }

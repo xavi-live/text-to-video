@@ -60,7 +60,6 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setCreatedDate(user.getCreatedDate());
 
-        // Convert Video entities to VideoResponseDto list
         List<VideoResponseDto> videoDtos = user.getVideos()
                 .stream()
                 .map(video -> {

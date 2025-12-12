@@ -33,11 +33,9 @@ public class VideoService {
 
     public Video createVideo(String videoInstruction, User user) throws IOException {
 
-        // Split the video into chunks
         List<ChunksApiResponseDto> videoDataChunks =
                 videoChunksAndDescriptionApi.QueryVideoDescriptiveChunks(videoInstruction);
 
-        // Prepare temporary audio directory
         Path tempAudioDir = Path.of("temporary-audio-files");
         Files.createDirectories(tempAudioDir);
 
@@ -50,35 +48,27 @@ public class VideoService {
         File finalVideoFile = null;
 
         try {
-            // Generate audio files for each chunk
             for (ChunksApiResponseDto chunk : videoDataChunks) {
 
-                // fetch video url
                 chunk.setMediaUrl(videosApi.getFirstVideo(chunk.getMediaDescription()).getMediaUrl());
 
-                // generate speech audio
                 byte[] audioBytes = ttsApi.getAudio(chunk.getStoryText());
 
-                // create unique audio file per chunk
                 Path outputPath = tempAudioDir.resolve("output_" + chunk.getId() + ".mp3");
                 Files.write(outputPath, audioBytes);
                 chunk.setAudioUrl(outputPath.toString());
                 tempAudioFiles.add(outputPath);
             }
 
-            // create final video and get path
             String finalVideoPath = editChunksIntoVideoAndGetPath(videoDataChunks);
             finalVideoFile = new File(finalVideoPath);
 
-            // upload to Minio
             String presignedUrl = minioUploadService.upload(finalVideoPath);
             video.setFileUrl(presignedUrl);
 
-            // set duration
             double durationSeconds = getVideoDuration(finalVideoPath);
             video.setDuration(Duration.ofMillis((long) (durationSeconds * 1000)));
 
-            // set size in bytes
             video.setSizeInBytes(finalVideoFile.length());
 
         } catch (IOException | InterruptedException e) {
@@ -86,13 +76,11 @@ public class VideoService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            // Delete temporary audio files
             for (Path audioFile : tempAudioFiles) {
                 try { Files.deleteIfExists(audioFile); } catch (IOException ignored) {}
             }
             try { Files.deleteIfExists(tempAudioDir); } catch (IOException ignored) {}
 
-            // Delete final video and its temp folder recursively
             if (finalVideoFile != null && finalVideoFile.exists()) {
                 File tempDir = finalVideoFile.getParentFile();
                 deleteDirectoryRecursively(tempDir);
@@ -119,7 +107,6 @@ public class VideoService {
         File listFile = new File(tempDir, "file_list.txt");
 
         try {
-            // Encode each chunk
             for (ChunksApiResponseDto chunk : videoDataChunks) {
                 File tempOutputFile = new File(tempDir, "temp_pair_" + chunk.getId() + ".mp4");
                 tempFiles.add(tempOutputFile);
@@ -137,14 +124,12 @@ public class VideoService {
                 runCommand(command);
             }
 
-            // Create list file for concatenation
             try (PrintWriter writer = new PrintWriter(listFile)) {
                 for (File tempFile : tempFiles) {
                     writer.println("file '" + tempFile.getAbsolutePath() + "'");
                 }
             }
 
-            // Concatenate final video
             String concatCommand = String.format(
                     "ffmpeg -y -loglevel error -f concat -safe 0 -i \"%s\" -c copy \"%s\"",
                     listFile.getAbsolutePath(), tempFinalVideo.getAbsolutePath()
@@ -154,7 +139,6 @@ public class VideoService {
             return tempFinalVideo.getAbsolutePath();
 
         } finally {
-            // ONLY delete intermediate files; leave final video for createVideo to handle
             for (File tempFile : tempFiles) if (tempFile.exists()) tempFile.delete();
             if (listFile.exists()) listFile.delete();
         }
@@ -164,7 +148,7 @@ public class VideoService {
         ProcessBuilder pb = new ProcessBuilder("bash", "-c", command);
         pb.redirectErrorStream(true);
         Process process = pb.start();
-        process.getInputStream().transferTo(OutputStream.nullOutputStream()); // discard output
+        process.getInputStream().transferTo(OutputStream.nullOutputStream());
         int exitCode = process.waitFor();
         if (exitCode != 0) {
             throw new RuntimeException("FFmpeg command failed with exit code " + exitCode);

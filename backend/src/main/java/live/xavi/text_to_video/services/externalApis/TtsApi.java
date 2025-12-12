@@ -20,7 +20,7 @@ public class TtsApi {
     public TtsApi(@Value("${elevenlabs.api.key}") String apiKey) {
         this.client = WebClient.builder()
                 .baseUrl("https://api.elevenlabs.io")
-                .defaultHeader("xi-api-key", apiKey)  // correct header
+                .defaultHeader("xi-api-key", apiKey)
                 .build();
     }
 
@@ -37,7 +37,7 @@ public class TtsApi {
                         .build())
                 .bodyValue(body)
                 .retrieve()
-                .bodyToMono(byte[].class)  // ElevenLabs returns audio bytes
+                .bodyToMono(byte[].class)
                 .block();
     }
 }

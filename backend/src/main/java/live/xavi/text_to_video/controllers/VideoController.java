@@ -44,10 +44,8 @@ public class VideoController {
         Video video = videoService.findById(request.getId())
                 .orElseThrow(() -> new RuntimeException("Video not found with id: " + request.getId()));
 
-        // Increase views
         video.setViews(video.getViews() + 1);
 
-        // Save
         videoService.save(video);
 
         return ResponseEntity.ok("view count updated successfully!");

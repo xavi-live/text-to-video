@@ -19,7 +19,7 @@ public class VideosApi {
     public VideosApi(@Value("${pexels.api.key}") String apiKey) {
         this.client = WebClient.builder()
                 .baseUrl("https://api.pexels.com")
-                .defaultHeader("Authorization", apiKey) // put your key here
+                .defaultHeader("Authorization", apiKey)
                 .build();
     }
 
@@ -37,10 +37,10 @@ public class VideosApi {
                     Map videoFile = ((java.util.List<Map>) firstVideo.get("video_files")).get(0);
 
                     ChunksApiResponseDto dto = new ChunksApiResponseDto();
-                    dto.setMediaUrl((String) videoFile.get("link")); // set only mediaUrl
+                    dto.setMediaUrl((String) videoFile.get("link"));
                     return dto;
                 });
 
-        return mono.block(); // blocking for CLI / simple usage
+        return mono.block();
     }
 }

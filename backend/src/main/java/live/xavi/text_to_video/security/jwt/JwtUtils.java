@@ -30,7 +30,7 @@ public class JwtUtils {
     }
 
     public String generateToken (UserDetailsImpl userDetails) {
-        long actionTokenExpirationMs = 6 * 60 * 60 * 1000;
+        long actionTokenExpirationMs = 5 * 60 * 1000;
 
         String username = userDetails.getUsername();
         String roles = userDetails.getAuthorities()
@@ -48,7 +48,6 @@ public class JwtUtils {
     }
 
     public String generateRefreshToken(String username) {
-        // 7 days in milliseconds
         long refreshTokenExpirationMs = 7 * 24 * 60 * 60 * 1000;
 
         return Jwts.builder()
